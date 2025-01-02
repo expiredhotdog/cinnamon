@@ -168,6 +168,8 @@ class GroupedWindowListApplet extends Applet.Applet {
         this.tracker = Cinnamon.WindowTracker.get_default();
         this.recentManager = Gtk.RecentManager.get_default();
         this.workspaces = [];
+        this._last_ws_switch = 0;
+        this._last_ws_switch_direction = 0;
         // Initialize the default state. Any values passed through store.set must be declared here
         // first, or an error will be thrown.
         this.state = createStore({
@@ -694,6 +696,28 @@ class GroupedWindowListApplet extends Applet.Applet {
     handleScroll(e, sourceFromAppGroup) {
         if (e?.get_scroll_direction() == Clutter.ScrollDirection.SMOOTH)
             return;
+
+        if (this.state.settings.scrollBehavior === 4) {
+            let now = (new Date()).getTime();
+            let direction = e.get_scroll_direction();
+
+            // Avoid fast scroll directions
+            if(direction != 0 && direction != 1) return;
+
+            // Do the switch only after a elapsed time to avoid fast
+            // consecutive switches on sensible hardware, like touchpads
+            if ((now - this._last_ws_switch) > 220 ||
+                direction !== this._last_ws_switch_direction) {
+
+                if (direction == 0)
+                    Main.wm.actionMoveWorkspaceLeft();
+                else
+                    Main.wm.actionMoveWorkspaceRight();
+
+                this._last_ws_switch = now;
+                this._last_ws_switch_direction = direction;
+            }
+        }
 
         if( (this.state.settings.thumbnailScrollBehavior) || (this.state.settings.scrollBehavior === 2) ||
             (this.state.settings.leftClickAction === 3 && this.state.settings.scrollBehavior !== 3

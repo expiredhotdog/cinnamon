@@ -104,7 +104,8 @@
     "options": {
       "None": 1,
       "Cycle apps": 2,
-      "Cycle windows": 3
+      "Cycle windows": 3,
+      "Cycle workspaces": 4
     }
   },
   "left-click-action": {
@@ -124,7 +125,8 @@
     "options": {
       "None": 1,
       "Launch new app instance": 2,
-      "Close last focused window in group": 3
+      "Close last focused window in group": 3,
+      "Show workspace expo" : 4
     }
   },
   "show-all-workspaces": {

@@ -714,6 +714,11 @@ class AppGroup {
         const ctrlPressed = (modifiers & Clutter.ModifierType.CONTROL_MASK);
         const shiftPressed = (modifiers & Clutter.ModifierType.SHIFT_MASK);
 
+        if (button === 2 && this.state.settings.middleClickAction === 4) {
+            Main.expo.toggle();
+            return;
+        }
+
         const shouldStartInstance = (
             (button === 1 && ctrlPressed)
             || (button === 1 && shiftPressed)
