@@ -72,6 +72,9 @@ const FLASH_MAX_COUNT = 4;
 const WINDOW_PREVIEW_WIDTH = 200;
 const WINDOW_PREVIEW_HEIGHT = 150;
 
+var _last_ws_switch = 0;
+var _last_ws_switch_direction = 0;
+
 class WindowPreview extends Tooltips.TooltipBase {
     constructor(item, metaWindow, previewScale, showLabel) {
         super(item.actor);
@@ -412,41 +415,26 @@ class AppMenuButton {
         }
     }
 
-    _onScrollEvent(actor, event) {
-        let direction = event.get_scroll_direction();
+    _onScrollEvent(actor, e) {
+        let now = (new Date()).getTime();
+        let direction = e?.get_scroll_direction();
 
-        if (direction === Clutter.ScrollDirection.SMOOTH) {
-            return Clutter.EVENT_STOP;
+        // Avoid fast scroll directions
+        if(direction != 0 && direction != 1) return;
+
+        // Do the switch only after a elapsed time to avoid fast
+        // consecutive switches on sensible hardware, like touchpads
+        if ((now - _last_ws_switch) > 220 ||
+            direction !== _last_ws_switch_direction) {
+
+            if (direction == 0)
+                Main.wm.actionMoveWorkspaceLeft();
+            else
+                Main.wm.actionMoveWorkspaceRight();
+
+            _last_ws_switch = now;
+            _last_ws_switch_direction = direction;
         }
-
-        // Find the current focused window
-        let windows = this.actor.get_parent().get_children()
-        .filter(function(item) {
-            return item.visible;
-        }).map(function(item) {
-            return item._delegate;
-        });
-
-        windows = windows.reverse();
-
-        let i = windows.length;
-        while (i-- && !windows[i].metaWindow.has_focus());
-
-        if (i == -1)
-            return;
-
-        //                   v   home-made xor
-        if ((direction == 0) != this._applet.reverseScroll)
-            i++;
-        else
-            i--;
-
-        if (i == windows.length)
-            i = 0;
-        else if (i == -1)
-            i = windows.length - 1;
-
-        Main.activateWindow(windows[i].metaWindow, global.get_current_time());
     }
 
     _onDragBegin() {
@@ -1260,7 +1248,7 @@ class CinnamonWindowListApplet extends Applet.Applet {
             window.setDisplayTitle();
         }
     }
-    
+
     _updateLabels() {
         for (let window of this._windows)
             window.updateLabelVisible();

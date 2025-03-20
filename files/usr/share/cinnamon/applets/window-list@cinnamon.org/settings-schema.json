@@ -47,7 +47,7 @@
         "type": "spinbutton",
         "default" : 150,
         "min" : 0,
-        "max" : 1000,
+        "max" : 10000,
         "step" : 5,
         "units" : "pixels",
         "description" : "Window button width in the panel",
