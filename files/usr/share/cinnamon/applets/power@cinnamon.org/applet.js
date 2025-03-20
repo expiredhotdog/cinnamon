@@ -399,7 +399,7 @@ class CinnamonPowerApplet extends Applet.TextIconApplet {
               </interface>
             </node>`;
             let PowerProfilesProxy = Gio.DBusProxy.makeProxyWrapper(PowerProfilesInterface);
-            this._profilesProxy = new PowerProfilesProxy(Gio.DBus.system, "net.haess.PowerProfiles", "/net/hadess/PowerProfiles");
+            this._profilesProxy = new PowerProfilesProxy(Gio.DBus.system, "net.hadess.PowerProfiles", "/net/hadess/PowerProfiles");
             // Upower if hadess doesn't work..
             if (!this._profilesProxy.Profiles) {
                 // UPower interface
@@ -624,22 +624,18 @@ class CinnamonPowerApplet extends Applet.TextIconApplet {
 
         for (let profileNum = 0; profileNum < this.Profiles.length; profileNum++) {
             let profileName = this.Profiles[profileNum].Profile.unpack();
-            let activeItem;
+            let item;
             if (profileName == this.ActiveProfile) {
-                activeItem = true;
                 this.profileIndex = profileNum;
+                item = new PopupMenu.PopupMenuItem(POWER_PROFILES[profileName], { style_class: 'popup-device-menu-item', reactive: false });
+                item.setShowDot(true);
             } else {
-                activeItem = false;
-            }
-
-            let item = new PopupMenu.PopupMenuItem(POWER_PROFILES[profileName], { reactive: !activeItem });
-            item.setShowDot(activeItem);
-            if (!activeItem)
+                item = new PopupMenu.PopupMenuItem(POWER_PROFILES[profileName]);
                 item.connect("activate", Lang.bind(this, function () {
                     this._changeProfile(profileName);
                     this.menu.toggle();
                 }));
-
+            }
             this.contentSection.addMenuItem(item);
         }
 

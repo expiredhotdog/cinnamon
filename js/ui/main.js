@@ -429,7 +429,7 @@ function start() {
     placesManager = new PlacesManager.PlacesManager();
 
     // NM Agent
-    if (Config.HAVE_NETWORKMANAGER && global.settings.get_boolean("enable-nm-agent")) {
+    if (Config.BUILT_NM_AGENT && global.settings.get_boolean("enable-nm-agent")) {
         networkAgent = new NetworkAgent.NetworkAgent();
         global.log('NetworkManager agent: enabled')
     }
@@ -1608,7 +1608,11 @@ function showEndSessionDialog(mode) {
     }
 
     endSessionDialog = new EndSessionDialog(mode);
-    endSessionDialog.open();
+    if (!endSessionDialog.open()) {
+        endSessionDialog.close();
+        endSessionDialog = null;
+        global.logWarning("Failed to open end session dialog");
+    }
 }
 
 function closeEndSessionDialog() {

@@ -74,7 +74,7 @@ var ModalDialog = GObject.registerClass({
         });
 
         params = Params.parse(params, {
-            cinnamonReactive: false,
+            cinnamonReactive: Main.virtualKeyboard.enabled,
             styleClass: null,
             destroyOnClose: true,
         });
@@ -84,7 +84,7 @@ var ModalDialog = GObject.registerClass({
         this._cinnamonReactive = params.cinnamonReactive;
         this._destroyOnClose = params.destroyOnClose;
 
-        Main.layoutManager.modalDialogGroup.add_child(this);
+        Main.uiGroup.add_actor(this);
 
         let constraint = new Clutter.BindConstraint({
             source: global.stage,
@@ -238,8 +238,6 @@ var ModalDialog = GObject.registerClass({
         if (!this.pushModal(timestamp))
             return false;
 
-        Main.panelManager.disablePanels();
-
         this._fadeOpen();
         return true;
     }
@@ -258,8 +256,6 @@ var ModalDialog = GObject.registerClass({
         this._setState(State.CLOSING);
         this.popModal(timestamp);
         this._savedKeyFocus = null;
-
-        Main.panelManager.enablePanels();
 
         this.ease({
             opacity: 0,
